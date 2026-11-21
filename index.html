@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lern-App</title>
+  <style>
+    body {
+      font-family: -apple-system, Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+      background: #f4f1ea;
+      color: #333;
+    }
+    h1 { text-align: center; }
+    .info { color: #777; font-size: 14px; }
+    .badge { color: #b35c00; font-weight: bold; }
+    .antwort {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      font-size: 17px;
+      text-align: left;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      background: white;
+      color: #333;
+    }
+    /* Text bleibt nach dem Antworten gut lesbar */
+    .antwort:disabled {
+      color: #333;
+      opacity: 1;
+      -webkit-text-fill-color: #333;
+    }
+    .richtig { background: #c8f0c8; border-color: #3a9a3a; }
+    .falsch  { background: #f5c6c6; border-color: #c0392b; }
+    .erklaerung { background: #fff8d6; padding: 10px; border-radius: 8px; }
+    .weiter {
+      width: 100%;
+      padding: 14px;
+      font-size: 17px;
+      border: none;
+      border-radius: 10px;
+      background: #4a7c59;
+      color: white;
+      margin-top: 12px;
+    }
+    .klein {
+      display: block;
+      margin: 24px auto 0;
+      background: none;
+      border: none;
+      color: #777;
+      font-size: 14px;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lern-App</h1>
+  <div id="quiz"></div>
+
+  <!-- Zuerst den Fragenkatalog laden, dann die App-Logik -->
+  <script src="fragen.js"></script>
+  <script>
+    // ===== Einstellungen =====
+    const FRAGEN_PRO_RUNDE = 10;     // wie viele Fragen pro Runde
+    const RICHTIG_ZUM_ABHAKEN = 2;   // so oft hintereinander richtig, bis eine Frage als gelernt gilt
+
+    // ===== Lernstand laden und speichern =====
+    // Der Lernstand wird im Browser auf dem Gerät gespeichert ("localStorage").
+    function ladeLernstand() {
+      try {
+        return JSON.parse(localStorage.getItem("lernstand")) || {};
+      } catch (fehler) {
+        return {};
+      }
+    }
+
+    function speichereLernstand() {
+      try {
+        localStorage.setItem("lernstand", JSON.stringify(lernstand));
+      } catch (fehler) {
+        // Falls Speichern nicht klappt, läuft die App trotzdem weiter
+      }
+    }
+
+    let lernstand = ladeLernstand();
+
+    function istOffen(id) {
+      return lernstand[id] && lernstand[id].offen;
+    }
+
+    // Trägt das Ergebnis einer Antwort in den Lernstand ein
+    function aktualisiereLernstand(id, istRichtig) {
+      const eintrag = lernstand[id] || { offen: false, richtigInFolge: 0 };
+
+      if (istRichtig) {
+        eintrag.richtigInFolge++;
+        if (eintrag.richtigInFolge >= RICHTIG_ZUM_ABHAKEN) {
+          eintrag.offen = false;
+        }
+      } else {
+        eintrag.offen = true;
+        eintrag.richtigInFolge = 0;
+      }
+
+      lernstand[id] = eintrag;
+      speichereLernstand();
+    }
+
+    // ===== Runde zusammenstellen =====
+    // Offene Fragen kommen zuerst, danach die übrigen.
+    function stelleRundeZusammen() {
+      const offene = FRAGEN.filter(f => istOffen(f.id));
+      const uebrige = FRAGEN.filter(f => !istOffen(f.id));
+      return offene.concat(uebrige).slice(0, FRAGEN_PRO_RUNDE);
+    }
+
+    const runde = stelleRundeZusammen();
+    let aktuelleFrage = 0;
+    let punkte = 0;
+    const ergebnisse = [];
+
+    // ===== Anzeige =====
+    function zeigeFrage() {
+      const bereich = document.getElementById("quiz");
+
+      if (aktuelleFrage >= runde.length) {
+        zeigeErgebnis();
+        return;
+      }
+
+      const f = runde[aktuelleFrage];
+      const markierung = istOffen(f.id) ? ` · <span class="badge">🔁 Wiederholung</span>` : "";
+
+      let html = `<p class="info">Frage ${aktuelleFrage + 1} von ${runde.length} · ${f.epoche}${markierung}</p>`;
+      html += `<h2>${f.frage}</h2>`;
+
+      f.antworten.forEach((antwort, i) => {
+        html += `<button class="antwort" onclick="pruefeAntwort(${i})">${antwort}</button>`;
+      });
+
+      bereich.innerHTML = html;
+    }
+
+    function pruefeAntwort(gewaehlt) {
+      const f = runde[aktuelleFrage];
+      const istRichtig = (gewaehlt === f.richtig);
+      if (istRichtig) punkte++;
+
+      ergebnisse.push({ frage: f, gewaehlt: gewaehlt, istRichtig: istRichtig });
+      aktualisiereLernstand(f.id, istRichtig);
+
+      const buttons = document.querySelectorAll(".antwort");
+      buttons.forEach((button, i) => {
+        button.disabled = true;
+        if (i === f.richtig) button.classList.add("richtig");
+        else if (i === gewaehlt) button.classList.add("falsch");
+      });
+
+      const bereich = document.getElementById("quiz");
+      bereich.insertAdjacentHTML("beforeend",
+        `<p class="erklaerung">${istRichtig ? "Richtig! " : "Leider falsch. "}${f.erklaerung}</p>
+         <button class="weiter" onclick="naechsteFrage()">Weiter</button>`);
+    }
+
+    function naechsteFrage() {
+      aktuelleFrage++;
+      zeigeFrage();
+    }
+
+    function zeigeErgebnis() {
+      const nochOffen = FRAGEN.filter(f => istOffen(f.id)).length;
+
+      let html = `<h2>Geschafft! ${punkte} von ${runde.length} richtig</h2>`;
+      html += `<p class="info">Noch zu üben: ${nochOffen} ${nochOffen === 1 ? "Frage" : "Fragen"}</p>`;
+
+      ergebnisse.forEach((e) => {
+        html += `<p><strong>${e.istRichtig ? "✅" : "❌"} ${e.frage.frage}</strong><br>
+                 Richtige Antwort: ${e.frage.antworten[e.frage.richtig]}</p>`;
+      });
+
+      html += `<button class="weiter" onclick="location.reload()">Nochmal</button>`;
+      html += `<button class="klein" onclick="zuruecksetzen()">Lernstand zurücksetzen</button>`;
+      document.getElementById("quiz").innerHTML = html;
+    }
+
+    function zuruecksetzen() {
+      if (confirm("Lernstand wirklich löschen?")) {
+        lernstand = {};
+        speichereLernstand();
+        location.reload();
+      }
+    }
+
+    // Beim Laden der Seite mit der ersten Frage starten
+    zeigeFrage();
+  </script>
+</body>
+</html>
