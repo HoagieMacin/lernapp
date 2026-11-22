@@ -194,6 +194,15 @@
     .skizze .gerade  { stroke: var(--weinrot); stroke-width: 2; }
     .skizze .dreieck { stroke: var(--gold); stroke-width: 2.5; fill: none; }
     .skizze text     { fill: var(--braun); font-size: 11px; font-family: inherit; }
+    /* "Pyramide" aus Kästchen (z. B. Ständegesellschaft) */
+    .pyramide { margin: 8px 0; text-align: center; font-size: 14px; line-height: 1.3; }
+    .pyramide div {
+      margin: 3px auto;
+      padding: 4px;
+      background: var(--papier);
+      border: 1px solid var(--gold);
+      border-radius: 3px;
+    }
     /* Zurück/Weiter nebeneinander */
     .nav { display: flex; gap: 8px; }
     .nav .weiter { flex: 1; }
@@ -249,6 +258,8 @@
 
   <!-- 3. Die Themen. Für ein neues Thema einfach eine Zeile ergänzen. -->
   <script src="themen/lineare-funktionen.js?v=2"></script>
+  <script src="themen/franzoesische-revolution.js?v=1"></script>
+  <script src="themen/englisch-wiederholung.js?v=1"></script>
 
   <!-- 4. Die App-Logik -->
   <script>
@@ -397,18 +408,13 @@
       window.scrollTo(0, 0);
     }
 
-    // ===== Startbildschirm =====
+    // ===== Startbildschirm: Liste aller Themen =====
     function zeigeStart() {
-      let html = "";
+      let html = `<p class="info">Wähle ein Thema</p>`;
 
-      // Für jedes Thema: Titel und die drei Stationen
+      // Für jedes Thema ein Knopf: Titel groß, Fach darunter klein
       THEMEN.forEach((thema, nr) => {
-        const anzahlTest = Math.min(FRAGEN_PRO_RUNDE, thema.test.length);
-        html += `<p class="info">${thema.fach}</p>
-          <h2>${thema.titel}</h2>
-          <button class="station" onclick="zeigeEinfuehrung(${nr}, 0)">📖 Einführung<span>Worum geht es? Mit Beispielen</span></button>
-          <button class="station" onclick="starteUebung(${nr})">✏️ Übungen<span>Ohne Punkte – so oft du magst</span></button>
-          <button class="station" onclick="starteTest(${nr})">🏆 Abschlusstest<span>${anzahlTest} Fragen · zählt für deine Punkte</span></button>`;
+        html += `<button class="station" onclick="zeigeThema(${nr})">${thema.titel}<span>${thema.fach}</span></button>`;
       });
 
       // Darunter das Gemischte Quiz mit den Fragen aus fragen.js
@@ -416,6 +422,20 @@
         <button class="station" onclick="starteQuiz()">🎲 Gemischtes Quiz<span>Geschichte, Biologie, Physik und Mathe</span></button>`;
 
       zeigeInhalt(html, false);
+    }
+
+    // ===== Themenseite: die drei Stationen eines Themas =====
+    function zeigeThema(nr) {
+      const thema = THEMEN[nr];
+      const anzahlTest = Math.min(FRAGEN_PRO_RUNDE, thema.test.length);
+
+      const html = `<p class="info">${thema.fach}</p>
+        <h2>${thema.titel}</h2>
+        <button class="station" onclick="zeigeEinfuehrung(${nr}, 0)">📖 Einführung<span>Worum geht es? Mit Beispielen</span></button>
+        <button class="station" onclick="starteUebung(${nr})">✏️ Übungen<span>Ohne Punkte – so oft du magst</span></button>
+        <button class="station" onclick="starteTest(${nr})">🏆 Abschlusstest<span>${anzahlTest} Fragen · zählt für deine Punkte</span></button>`;
+
+      zeigeInhalt(html, true);
     }
 
     // ===== Einführung: eine Seite nach der anderen =====
@@ -568,7 +588,7 @@
       html += ergebnisListe();
       html += `<button class="weiter" onclick="starteUebung(${themaNr})">Nochmal üben</button>`;
       html += `<button class="weiter hell" onclick="starteTest(${themaNr})">Zum Abschlusstest</button>`;
-      html += `<button class="klein" onclick="zeigeStart()">Zum Start</button>`;
+      html += `<button class="klein" onclick="zeigeThema(${themaNr})">Zum Thema</button>`;
       zeigeInhalt(html, true);
     }
 
@@ -601,7 +621,12 @@
       html += ergebnisListe();
 
       html += `<button class="weiter" onclick="starteRunde(fragenPool, modus)">Nochmal</button>`;
-      html += `<button class="weiter hell" onclick="zeigeStart()">Zum Start</button>`;
+      // Beim Abschlusstest zurück zum Thema, beim Gemischten Quiz zum Start
+      if (themaNr !== null) {
+        html += `<button class="weiter hell" onclick="zeigeThema(${themaNr})">Zum Thema</button>`;
+      } else {
+        html += `<button class="weiter hell" onclick="zeigeStart()">Zum Start</button>`;
+      }
       html += `<button class="klein" onclick="zuruecksetzen()">Lernstand zurücksetzen</button>`;
       zeigeInhalt(html, true);
 
