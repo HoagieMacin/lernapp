@@ -242,13 +242,13 @@
   <div id="inhalt"></div>
 
   <!-- 1. Fragen für das Gemischte Quiz -->
-  <script src="fragen.js?v=2"></script>
+  <script src="fragen.js?v=3"></script>
 
   <!-- 2. Leere Themenliste anlegen. Jede Themen-Datei hängt sich hier an. -->
   <script>const THEMEN = [];</script>
 
   <!-- 3. Die Themen. Für ein neues Thema einfach eine Zeile ergänzen. -->
-  <script src="themen/lineare-funktionen.js?v=1"></script>
+  <script src="themen/lineare-funktionen.js?v=2"></script>
 
   <!-- 4. Die App-Logik -->
   <script>
@@ -261,7 +261,7 @@
 
     // ===== Freundliche Rückmeldungen (eine davon wird zufällig gewählt) =====
     const LOB = ["Richtig!", "Super!", "Genau so!", "Klasse!", "Stark!"];
-    const TROST = ["Noch nicht ganz – kein Problem.", "Knapp daneben – das ist okay.", "Nicht schlimm, schau mal:"];
+    const TROST = ["Noch nicht ganz – kein Problem.", "Knapp daneben – das ist okay.", "Nicht schlimm, schau mal →"];
 
     function zufaellig(liste) {
       return liste[Math.floor(Math.random() * liste.length)];
@@ -542,7 +542,7 @@
       let html = "";
       ergebnisse.forEach((e) => {
         html += `<p><strong>${e.istRichtig ? "✅" : "❌"} ${e.frage.frage}</strong><br>
-                 Richtige Antwort: ${e.frage.antworten[e.frage.richtig]}</p>`;
+                 Richtige Antwort → ${e.frage.antworten[e.frage.richtig]}</p>`;
       });
       return html;
     }

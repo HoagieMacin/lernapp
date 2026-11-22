@@ -32,31 +32,31 @@ THEMEN.push({
         Bei einer <strong>linearen</strong> Funktion ist der Graph immer eine
         <strong>gerade Linie</strong>.</p>
      <p class="formel">y = mx + n</p>
-     <p class="beispiel">Beispiel: Ein Handyvertrag kostet 5 € im Monat plus 2 € pro Gigabyte.
+     <p class="beispiel"><strong>Beispiel</strong><br>Ein Handyvertrag kostet 5 € im Monat plus 2 € pro Gigabyte.
         Für x Gigabyte zahlst du y = 2x + 5 Euro.
         Bei 3 GB sind das 2 · 3 + 5 = 11 €.</p>`,
 
     // Seite 2
     `<h2>Die Steigung m</h2>
-     <p>Die Zahl <strong>vor dem x</strong> heißt Steigung. Sie sagt dir:
+     <p>Die Zahl <strong>vor dem x</strong> heißt Steigung. Sie sagt dir, wie steil die Gerade ist.
         Gehst du 1 Kästchen nach rechts, geht die Gerade m Kästchen nach oben.</p>
      <p>m positiv → die Gerade <strong>steigt</strong>.<br>
         m negativ → die Gerade <strong>fällt</strong>.<br>
         m = 0 → die Gerade ist <strong>waagerecht</strong>.</p>
-     <p class="beispiel">Beispiel: y = 3x + 1<br>
-        Die Steigung ist m = 3: 1 nach rechts, 3 nach oben.</p>`,
+     <p class="beispiel"><strong>Beispiel</strong><br>y = 3x + 1<br>
+        Die Steigung ist m = 3 → 1 nach rechts, 3 nach oben.</p>`,
 
     // Seite 3
     `<h2>Der y-Achsenabschnitt n</h2>
      <p>Die Zahl <strong>ohne x</strong> heißt y-Achsenabschnitt. Dort schneidet
         die Gerade die y-Achse, im Punkt <strong>(0 | n)</strong>.</p>
      <p>Warum? Auf der y-Achse ist x = 0. Dann fällt mx weg und es bleibt y = n.</p>
-     <p class="beispiel">Beispiel: y = 2x + 4 schneidet die y-Achse bei (0 | 4).<br>
+     <p class="beispiel"><strong>Beispiel</strong><br>y = 2x + 4 schneidet die y-Achse bei (0 | 4).<br>
         Bei y = 2x ist n = 0. Die Gerade geht durch den Ursprung (0 | 0).</p>`,
 
     // Seite 4 – mit einer kleinen Zeichnung (SVG = Grafik direkt im Code)
     `<h2>Das Steigungsdreieck</h2>
-     <p>Mit einem Steigungsdreieck kannst du m am Graphen ablesen:</p>
+     <p>Mit einem Steigungsdreieck kannst du m am Graphen ablesen.</p>
      <p class="formel">m = hoch : rechts</p>
      <svg class="skizze" viewBox="0 0 180 150" role="img"
           aria-label="Gerade y = 0,5x + 1 mit Steigungsdreieck: 2 nach rechts, 1 nach oben">
@@ -73,26 +73,26 @@ THEMEN.push({
        <text x="96" y="99" text-anchor="middle">2 nach rechts</text>
        <text x="125" y="76">1 hoch</text>
      </svg>
-     <p class="beispiel">Hier: m = 1 : 2 = ½. Die Gerade heißt y&nbsp;=&nbsp;½x&nbsp;+&nbsp;1.</p>`,
+     <p class="beispiel">Hier ist m = 1 : 2 = ½. Die Gerade heißt y&nbsp;=&nbsp;½x&nbsp;+&nbsp;1.</p>`,
     // Hinweis: &nbsp; ist ein Leerzeichen, an dem nicht umgebrochen wird.
 
     // Seite 5
     `<h2>Die Wertetabelle</h2>
      <p>Setze für x verschiedene Zahlen ein und rechne y aus.</p>
-     <p class="beispiel">Beispiel: y = 2x + 1<br>
-        Für x = 2: y = 2 · 2 + 1 = 5</p>
+     <p class="beispiel"><strong>Beispiel</strong><br>y = 2x + 1<br>
+        Für x = 2 → y = 2 · 2 + 1 = 5</p>
      <table class="wertetabelle">
        <tr><th>x</th><td>−1</td><td>0</td><td>1</td><td>2</td></tr>
        <tr><th>y</th><td>−1</td><td>1</td><td>3</td><td>5</td></tr>
      </table>
-     <p>Tipp: Geht x immer um 1 weiter, wächst y jedes Mal um m (hier um 2).</p>`,
+     <p><strong>Tipp</strong> → Geht x immer um 1 weiter, wächst y jedes Mal um m (hier um 2).</p>`,
 
     // Seite 6
     `<h2>Die Nullstelle</h2>
      <p>Die Nullstelle ist die Stelle, an der die Gerade die
         <strong>x-Achse</strong> schneidet. Dort ist <strong>y = 0</strong>.</p>
      <p>Setze also y = 0 und löse die Gleichung nach x auf.</p>
-     <p class="beispiel">Beispiel: y = 2x − 4<br>
+     <p class="beispiel"><strong>Beispiel</strong><br>y = 2x − 4<br>
         0 = 2x − 4 &nbsp;| + 4<br>
         4 = 2x &nbsp;| : 2<br>
         x = 2 → Die Nullstelle liegt bei (2 | 0).</p>
@@ -121,14 +121,14 @@ THEMEN.push({
       frage: "Steigt oder fällt die Gerade y = −3x + 1?",
       antworten: ["Sie steigt", "Sie fällt", "Sie ist waagerecht", "Das kann man nicht sagen"],
       richtig: 1,
-      erklaerung: "m = −3 ist negativ, deshalb fällt die Gerade: 1 nach rechts, 3 nach unten."
+      erklaerung: "m = −3 ist negativ, deshalb fällt die Gerade → 1 nach rechts, 3 nach unten."
     },
     {
       id: "lf-ue-004",
       frage: "Berechne y für x = 3 bei y = 2x + 1.",
       antworten: ["6", "7", "5", "9"],
       richtig: 1,
-      erklaerung: "Einsetzen: y = 2 · 3 + 1 = 6 + 1 = 7."
+      erklaerung: "Einsetzen → y = 2 · 3 + 1 = 6 + 1 = 7."
     },
     {
       id: "lf-ue-005",
@@ -142,18 +142,18 @@ THEMEN.push({
       frage: "Welcher Punkt liegt auf der Geraden y = x + 2?",
       antworten: ["(1 | 3)", "(3 | 1)", "(2 | 2)", "(0 | 1)"],
       richtig: 0,
-      erklaerung: "Probe mit x = 1: y = 1 + 2 = 3. Also liegt (1 | 3) auf der Geraden."
+      erklaerung: "Probe mit x = 1 → y = 1 + 2 = 3. Also liegt (1 | 3) auf der Geraden."
     },
     {
       id: "lf-ue-007",
       frage: "Wo liegt die Nullstelle von y = 2x − 6?",
       antworten: ["x = 3", "x = −3", "x = 6", "x = −6"],
       richtig: 0,
-      erklaerung: "y = 0 setzen: 0 = 2x − 6. Dann + 6: 6 = 2x. Dann : 2 ergibt x = 3."
+      erklaerung: "y = 0 setzen → 0 = 2x − 6. Auf beiden Seiten + 6 → 6 = 2x. Durch 2 teilen → x = 3."
     },
     {
       id: "lf-ue-008",
-      frage: "Eine Wertetabelle zeigt: x = 0 → y = 1, x = 1 → y = 3, x = 2 → y = 5. Welche Funktion ist das?",
+      frage: "In einer Wertetabelle steht x = 0 → y = 1, x = 1 → y = 3, x = 2 → y = 5. Welche Funktion ist das?",
       antworten: ["y = 2x + 1", "y = x + 1", "y = 3x", "y = 2x + 3"],
       richtig: 0,
       erklaerung: "Bei x = 0 ist y = 1, also n = 1. Pro Schritt wächst y um 2, also m = 2."
@@ -167,7 +167,7 @@ THEMEN.push({
       frage: "Welche Steigung hat y = −5x + 2?",
       antworten: ["−5", "2", "5", "−2"],
       richtig: 0,
-      erklaerung: "Die Zahl vor dem x ist die Steigung: m = −5."
+      erklaerung: "Die Zahl vor dem x ist die Steigung, also m = −5."
     },
     {
       id: "lf-t-002",
@@ -202,7 +202,7 @@ THEMEN.push({
       frage: "Ein Steigungsdreieck geht 4 nach rechts und 2 nach unten. Wie groß ist m?",
       antworten: ["−½", "½", "−2", "2"],
       richtig: 0,
-      erklaerung: "Nach unten heißt negativ: m = −2 : 4 = −½."
+      erklaerung: "Nach unten heißt negativ, also m = −2 : 4 = −½."
     },
     {
       id: "lf-t-007",
@@ -216,25 +216,25 @@ THEMEN.push({
       frage: "Wo liegt die Nullstelle von y = 3x − 9?",
       antworten: ["x = 3", "x = −3", "x = 9", "x = 6"],
       richtig: 0,
-      erklaerung: "0 = 3x − 9. Dann + 9: 9 = 3x. Dann : 3 ergibt x = 3."
+      erklaerung: "y = 0 setzen → 0 = 3x − 9. Auf beiden Seiten + 9 → 9 = 3x. Durch 3 teilen → x = 3."
     },
     {
       id: "lf-t-009",
       frage: "Wo liegt die Nullstelle von y = −2x + 8?",
       antworten: ["x = 4", "x = −4", "x = 8", "x = −8"],
       richtig: 0,
-      erklaerung: "0 = −2x + 8. Dann + 2x: 2x = 8. Dann : 2 ergibt x = 4."
+      erklaerung: "y = 0 setzen → 0 = −2x + 8. Auf beiden Seiten + 2x → 2x = 8. Durch 2 teilen → x = 4."
     },
     {
       id: "lf-t-010",
       frage: "Welcher Punkt liegt auf der Geraden y = 2x − 1?",
       antworten: ["(3 | 5)", "(5 | 3)", "(0 | 1)", "(2 | 4)"],
       richtig: 0,
-      erklaerung: "Probe mit x = 3: y = 2 · 3 − 1 = 5. Also liegt (3 | 5) auf der Geraden."
+      erklaerung: "Probe mit x = 3 → y = 2 · 3 − 1 = 5. Also liegt (3 | 5) auf der Geraden."
     },
     {
       id: "lf-t-011",
-      frage: "Eine Wertetabelle zeigt: x = 0 → y = 4, x = 1 → y = 3, x = 2 → y = 2. Welche Funktion ist das?",
+      frage: "In einer Wertetabelle steht x = 0 → y = 4, x = 1 → y = 3, x = 2 → y = 2. Welche Funktion ist das?",
       antworten: ["y = −x + 4", "y = x + 4", "y = −4x + 1", "y = 4x − 1"],
       richtig: 0,
       erklaerung: "Bei x = 0 ist y = 4, also n = 4. Pro Schritt wird y um 1 kleiner, also m = −1."

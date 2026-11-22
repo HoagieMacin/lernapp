@@ -177,10 +177,10 @@ const FRAGEN = [
   {
     id: "mat-003",
     epoche: "Mathematik",
-    frage: "Löse die Gleichung: 3x + 5 = 20",
+    frage: "Löse die Gleichung 3x + 5 = 20.",
     antworten: ["x = 3", "x = 15", "x = 25", "x = 5"],
     richtig: 3,
-    erklaerung: "Erst −5 rechnen: 3x = 15. Dann durch 3 teilen: x = 5."
+    erklaerung: "Erst −5 rechnen → 3x = 15. Dann durch 3 teilen → x = 5."
   },
   {
     id: "mat-004",
@@ -188,6 +188,6 @@ const FRAGEN = [
     frage: "Was ergibt (a + b)²?",
     antworten: ["a² + b²", "a² + 2ab + b²", "2a + 2b", "a² + ab + b²"],
     richtig: 1,
-    erklaerung: "Das ist die erste binomische Formel: (a + b)² = a² + 2ab + b²."
+    erklaerung: "Das ist die erste binomische Formel → (a + b)² = a² + 2ab + b²."
   }
 ];
