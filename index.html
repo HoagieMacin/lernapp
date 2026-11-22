@@ -75,13 +75,23 @@
 
   <!-- Zuerst den Fragenkatalog laden, dann die App-Logik -->
   <script src="fragen.js"></script>
-  <script>
+    <script>
     // ===== Einstellungen =====
     const FRAGEN_PRO_RUNDE = 10;     // wie viele Fragen pro Runde
     const RICHTIG_ZUM_ABHAKEN = 2;   // so oft hintereinander richtig, bis eine Frage als gelernt gilt
 
+    // ===== Hilfsfunktion: Liste zufällig mischen =====
+    // Gibt eine gemischte Kopie zurück, die Originalliste bleibt unverändert.
+    function mische(liste) {
+      const kopie = liste.slice();
+      for (let i = kopie.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [kopie[i], kopie[j]] = [kopie[j], kopie[i]];
+      }
+      return kopie;
+    }
+
     // ===== Lernstand laden und speichern =====
-    // Der Lernstand wird im Browser auf dem Gerät gespeichert ("localStorage").
     function ladeLernstand() {
       try {
         return JSON.parse(localStorage.getItem("lernstand")) || {};
@@ -104,7 +114,6 @@
       return lernstand[id] && lernstand[id].offen;
     }
 
-    // Trägt das Ergebnis einer Antwort in den Lernstand ein
     function aktualisiereLernstand(id, istRichtig) {
       const eintrag = lernstand[id] || { offen: false, richtigInFolge: 0 };
 
@@ -123,16 +132,17 @@
     }
 
     // ===== Runde zusammenstellen =====
-    // Offene Fragen kommen zuerst, danach die übrigen.
+    // Offene Fragen zuerst (gemischt), dann zufällig aufgefüllt.
     function stelleRundeZusammen() {
-      const offene = FRAGEN.filter(f => istOffen(f.id));
-      const uebrige = FRAGEN.filter(f => !istOffen(f.id));
+      const offene = mische(FRAGEN.filter(f => istOffen(f.id)));
+      const uebrige = mische(FRAGEN.filter(f => !istOffen(f.id)));
       return offene.concat(uebrige).slice(0, FRAGEN_PRO_RUNDE);
     }
 
     const runde = stelleRundeZusammen();
     let aktuelleFrage = 0;
     let punkte = 0;
+    let reihenfolge = [];    // in welcher Reihenfolge die Antworten gerade angezeigt werden
     const ergebnisse = [];
 
     // ===== Anzeige =====
@@ -147,11 +157,14 @@
       const f = runde[aktuelleFrage];
       const markierung = istOffen(f.id) ? ` · <span class="badge">🔁 Wiederholung</span>` : "";
 
+      // Antworten mischen: z. B. [2, 0, 3, 1]
+      reihenfolge = mische(f.antworten.map((antwort, i) => i));
+
       let html = `<p class="info">Frage ${aktuelleFrage + 1} von ${runde.length} · ${f.epoche}${markierung}</p>`;
       html += `<h2>${f.frage}</h2>`;
 
-      f.antworten.forEach((antwort, i) => {
-        html += `<button class="antwort" onclick="pruefeAntwort(${i})">${antwort}</button>`;
+      reihenfolge.forEach((original) => {
+        html += `<button class="antwort" onclick="pruefeAntwort(${original})">${f.antworten[original]}</button>`;
       });
 
       bereich.innerHTML = html;
@@ -165,11 +178,13 @@
       ergebnisse.push({ frage: f, gewaehlt: gewaehlt, istRichtig: istRichtig });
       aktualisiereLernstand(f.id, istRichtig);
 
+      // Buttons stehen in gemischter Reihenfolge, deshalb über "reihenfolge" zuordnen
       const buttons = document.querySelectorAll(".antwort");
-      buttons.forEach((button, i) => {
+      buttons.forEach((button, position) => {
+        const original = reihenfolge[position];
         button.disabled = true;
-        if (i === f.richtig) button.classList.add("richtig");
-        else if (i === gewaehlt) button.classList.add("falsch");
+        if (original === f.richtig) button.classList.add("richtig");
+        else if (original === gewaehlt) button.classList.add("falsch");
       });
 
       const bereich = document.getElementById("quiz");
