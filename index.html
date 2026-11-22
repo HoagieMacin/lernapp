@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Lern-App">
   <title>Lern-App</title>
-    <style>
+  <style>
     :root {
       --creme: #f6f0e4;
       --papier: #fffdf8;
@@ -29,6 +29,19 @@
       padding: 10px 14px;
       background: var(--creme);
       color: var(--braun);
+    }
+    /* Kopfbereich: Titel, Zierlinie und der kleine "Start"-Knopf links oben */
+    header { position: relative; }
+    .startknopf {
+      position: absolute;
+      left: 0;
+      top: 6px;
+      background: none;
+      border: none;
+      padding: 2px 0;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--braun-hell);
     }
     h1 {
       text-align: center;
@@ -106,11 +119,16 @@
       font-size: 15px;
       text-transform: uppercase;
       letter-spacing: 0.12em;
-      border: none;
+      border: 2px solid var(--weinrot);
       border-radius: 4px;
       background: var(--weinrot);
       color: #fbf6ec;
       margin-top: 8px;
+    }
+    /* Zweitrangiger Knopf: gleiche Form, aber hell */
+    .weiter.hell {
+      background: var(--papier);
+      color: var(--weinrot);
     }
     .klein {
       display: block;
@@ -122,22 +140,134 @@
       font-size: 14px;
       text-decoration: underline;
     }
+
+    /* ===== Startbildschirm ===== */
+    .station {
+      display: block;
+      width: 100%;
+      padding: 10px 12px;
+      margin: 7px 0;
+      font-family: inherit;
+      font-size: 17px;
+      text-align: left;
+      border: 2px solid var(--gold-hell);
+      border-radius: 4px;
+      background: var(--papier);
+      color: var(--braun);
+      box-shadow: 0 1px 2px rgba(62, 43, 32, 0.08);
+    }
+    /* Kleine Unterzeile im Stations-Knopf */
+    .station span {
+      display: block;
+      font-size: 13px;
+      font-style: italic;
+      color: var(--braun-hell);
+      margin-top: 2px;
+    }
+
+    /* ===== Einführung ===== */
+    .einfuehrung p { margin: 8px 0; line-height: 1.4; font-size: 16px; }
+    .einfuehrung .beispiel {
+      background: #f1e7d2;
+      border-left: 3px solid var(--gold);
+      padding: 8px 10px;
+      border-radius: 2px;
+    }
+    .einfuehrung .formel {
+      text-align: center;
+      font-size: 21px;
+      color: var(--weinrot);
+      margin: 10px 0;
+    }
+    .wertetabelle { border-collapse: collapse; margin: 8px auto; }
+    .wertetabelle th, .wertetabelle td {
+      border: 1px solid var(--gold-hell);
+      background: var(--papier);
+      padding: 4px 12px;
+      text-align: center;
+    }
+    .wertetabelle th { color: var(--weinrot); }
+    /* Zeichnung (SVG) */
+    .skizze { display: block; width: 100%; max-width: 220px; height: auto; margin: 4px auto; }
+    .skizze .gitter  { stroke: var(--gold-hell); stroke-width: 0.7; fill: none; }
+    .skizze .achse   { stroke: var(--braun); stroke-width: 1.2; fill: none; }
+    .skizze .gerade  { stroke: var(--weinrot); stroke-width: 2; }
+    .skizze .dreieck { stroke: var(--gold); stroke-width: 2.5; fill: none; }
+    .skizze text     { fill: var(--braun); font-size: 11px; font-family: inherit; }
+    /* Zurück/Weiter nebeneinander */
+    .nav { display: flex; gap: 8px; }
+    .nav .weiter { flex: 1; }
+
+    /* ===== Punkteleiste und Belohnung ===== */
+    .punkteleiste { margin: 0 0 10px; }
+    .punkte-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-variant: small-caps;
+      letter-spacing: 0.05em;
+      color: var(--braun-hell);
+      margin-bottom: 4px;
+    }
+    .balken {
+      height: 8px;
+      background: var(--papier);
+      border: 1px solid var(--gold-hell);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .balken-fuellung {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--weinrot));
+      transition: width 0.6s ease;
+    }
+    .belohnung {
+      background: var(--papier);
+      border: 1px solid var(--gold);
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin: 8px 0;
+      text-align: center;
+    }
+    .belohnung p { margin: 4px 0; }
   </style>
 </head>
 <body>
-  <h1>Lern-App</h1>
-  <p class="zier">❦</p>
-  <div id="quiz"></div>
+  <header>
+    <button id="startknopf" class="startknopf" onclick="zeigeStart()">‹ Start</button>
+    <h1>Lern-App</h1>
+    <p class="zier">❦</p>
+  </header>
+  <div id="punkteleiste" class="punkteleiste"></div>
+  <div id="inhalt"></div>
 
-  <!-- Zuerst den Fragenkatalog laden, dann die App-Logik -->
-    <script src="fragen.js?v=2"></script>
-    <script>
+  <!-- 1. Fragen für das Gemischte Quiz -->
+  <script src="fragen.js?v=2"></script>
+
+  <!-- 2. Leere Themenliste anlegen. Jede Themen-Datei hängt sich hier an. -->
+  <script>const THEMEN = [];</script>
+
+  <!-- 3. Die Themen. Für ein neues Thema einfach eine Zeile ergänzen. -->
+  <script src="themen/lineare-funktionen.js?v=1"></script>
+
+  <!-- 4. Die App-Logik -->
+  <script>
     // ===== Einstellungen =====
-    const FRAGEN_PRO_RUNDE = 10;     // wie viele Fragen pro Runde
-    const RICHTIG_ZUM_ABHAKEN = 2;   // so oft hintereinander richtig, bis eine Frage als gelernt gilt
+    const FRAGEN_PRO_RUNDE = 10;       // wie viele Fragen pro Test/Quiz-Runde
+    const RICHTIG_ZUM_ABHAKEN = 2;     // so oft hintereinander richtig, bis eine Frage als gelernt gilt
+    const PUNKTE_PRO_GUTSCHEIN = 10;   // so viele Punkte ergeben einen 50-Cent-Gutschein
+    const BONUS_PERFEKT = 5;           // Bonuspunkte für eine Runde ohne Fehler
+    const TAGES_MAXIMUM = 15;          // höchstens so viele Punkte pro Tag
+
+    // ===== Freundliche Rückmeldungen (eine davon wird zufällig gewählt) =====
+    const LOB = ["Richtig!", "Super!", "Genau so!", "Klasse!", "Stark!"];
+    const TROST = ["Noch nicht ganz – kein Problem.", "Knapp daneben – das ist okay.", "Nicht schlimm, schau mal:"];
+
+    function zufaellig(liste) {
+      return liste[Math.floor(Math.random() * liste.length)];
+    }
 
     // ===== Hilfsfunktion: Liste zufällig mischen =====
-    // Gibt eine gemischte Kopie zurück, die Originalliste bleibt unverändert.
     function mische(liste) {
       const kopie = liste.slice();
       for (let i = kopie.length - 1; i > 0; i--) {
@@ -187,43 +317,191 @@
       speichereLernstand();
     }
 
-    // ===== Runde zusammenstellen =====
-    // Offene Fragen zuerst (gemischt), dann zufällig aufgefüllt.
-    function stelleRundeZusammen() {
-      const offene = mische(FRAGEN.filter(f => istOffen(f.id)));
-      const uebrige = mische(FRAGEN.filter(f => !istOffen(f.id)));
+    // ===== Punkte laden und speichern =====
+    // Gespeichert werden: Punkte insgesamt, das heutige Datum und die Punkte von heute.
+    function heutigesDatum() {
+      const d = new Date();
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+
+    function ladePunkte() {
+      let p = null;
+      try {
+        p = JSON.parse(localStorage.getItem("punkte"));
+      } catch (fehler) {
+        p = null;
+      }
+      if (!p) p = { gesamt: 0, tag: "", heute: 0 };
+      return p;
+    }
+
+    function speicherePunkte() {
+      try {
+        localStorage.setItem("punkte", JSON.stringify(punktestand));
+      } catch (fehler) {
+        // Falls Speichern nicht klappt, läuft die App trotzdem weiter
+      }
+    }
+
+    let punktestand = ladePunkte();
+
+    // Ein neuer Tag beginnt: Tageszähler zurücksetzen
+    function pruefeNeuenTag() {
+      if (punktestand.tag !== heutigesDatum()) {
+        punktestand.tag = heutigesDatum();
+        punktestand.heute = 0;
+        speicherePunkte();
+      }
+    }
+
+    // Zeigt oben den Fortschrittsbalken zum nächsten Gutschein
+    function zeigePunkteleiste() {
+      const imBalken = punktestand.gesamt % PUNKTE_PRO_GUTSCHEIN;
+      const gutscheine = Math.floor(punktestand.gesamt / PUNKTE_PRO_GUTSCHEIN);
+      const prozent = imBalken / PUNKTE_PRO_GUTSCHEIN * 100;
+
+      document.getElementById("punkteleiste").innerHTML = `
+        <div class="punkte-text">
+          <span>Nächster Gutschein: ${imBalken} / ${PUNKTE_PRO_GUTSCHEIN}</span>
+          <span>🎟 ${gutscheine}</span>
+        </div>
+        <div class="balken"><div class="balken-fuellung" style="width: ${prozent}%"></div></div>`;
+    }
+
+    // Rechnet am Ende der Runde die Punkte aus und speichert sie
+    function vergibPunkte() {
+      pruefeNeuenTag();
+
+      const perfekt = (punkte === runde.length);
+      let verdient = punkte;
+      if (perfekt) verdient += BONUS_PERFEKT;
+
+      const nochMoeglich = Math.max(0, TAGES_MAXIMUM - punktestand.heute);
+      const gutgeschrieben = Math.min(verdient, nochMoeglich);
+
+      const gutscheineVorher = Math.floor(punktestand.gesamt / PUNKTE_PRO_GUTSCHEIN);
+      punktestand.gesamt += gutgeschrieben;
+      punktestand.heute += gutgeschrieben;
+      speicherePunkte();
+      const neueGutscheine = Math.floor(punktestand.gesamt / PUNKTE_PRO_GUTSCHEIN) - gutscheineVorher;
+
+      return { verdient: verdient, gutgeschrieben: gutgeschrieben, perfekt: perfekt, neueGutscheine: neueGutscheine };
+    }
+
+    // ===== Bildschirm wechseln =====
+    // Schreibt neuen Inhalt in die Seite. Der "Start"-Knopf oben links
+    // wird überall gezeigt, außer auf dem Startbildschirm selbst.
+    function zeigeInhalt(html, mitStartknopf) {
+      document.getElementById("inhalt").innerHTML = html;
+      document.getElementById("startknopf").style.display = mitStartknopf ? "block" : "none";
+      window.scrollTo(0, 0);
+    }
+
+    // ===== Startbildschirm =====
+    function zeigeStart() {
+      let html = "";
+
+      // Für jedes Thema: Titel und die drei Stationen
+      THEMEN.forEach((thema, nr) => {
+        const anzahlTest = Math.min(FRAGEN_PRO_RUNDE, thema.test.length);
+        html += `<p class="info">${thema.fach}</p>
+          <h2>${thema.titel}</h2>
+          <button class="station" onclick="zeigeEinfuehrung(${nr}, 0)">📖 Einführung<span>Worum geht es? Mit Beispielen</span></button>
+          <button class="station" onclick="starteUebung(${nr})">✏️ Übungen<span>Ohne Punkte – so oft du magst</span></button>
+          <button class="station" onclick="starteTest(${nr})">🏆 Abschlusstest<span>${anzahlTest} Fragen · zählt für deine Punkte</span></button>`;
+      });
+
+      // Darunter das Gemischte Quiz mit den Fragen aus fragen.js
+      html += `<p class="zier">❦</p>
+        <button class="station" onclick="starteQuiz()">🎲 Gemischtes Quiz<span>Geschichte, Biologie, Physik und Mathe</span></button>`;
+
+      zeigeInhalt(html, false);
+    }
+
+    // ===== Einführung: eine Seite nach der anderen =====
+    function zeigeEinfuehrung(nr, seite) {
+      const thema = THEMEN[nr];
+      const anzahlSeiten = thema.einfuehrung.length;
+
+      let html = `<p class="info">Einführung · Seite ${seite + 1} von ${anzahlSeiten}</p>`;
+      html += `<div class="einfuehrung">${thema.einfuehrung[seite]}</div>`;
+
+      // Knöpfe: "Zurück" ab Seite 2, "Weiter" bis zur vorletzten Seite, am Ende "Jetzt üben"
+      html += `<div class="nav">`;
+      if (seite > 0) {
+        html += `<button class="weiter hell" onclick="zeigeEinfuehrung(${nr}, ${seite - 1})">Zurück</button>`;
+      }
+      if (seite < anzahlSeiten - 1) {
+        html += `<button class="weiter" onclick="zeigeEinfuehrung(${nr}, ${seite + 1})">Weiter</button>`;
+      } else {
+        html += `<button class="weiter" onclick="starteUebung(${nr})">Jetzt üben</button>`;
+      }
+      html += `</div>`;
+
+      zeigeInhalt(html, true);
+    }
+
+    // ===== Zustand der laufenden Runde =====
+    let modus = "";         // "uebung", "test" oder "quiz"
+    let fragenPool = [];    // alle Fragen, aus denen die Runde gezogen wird
+    let themaNr = null;     // welches Thema gerade dran ist (beim Quiz: keins)
+    let runde = [];         // die Fragen dieser Runde
+    let aktuelleFrage = 0;
+    let punkte = 0;         // richtige Antworten in dieser Runde
+    let reihenfolge = [];   // gemischte Reihenfolge der Antworten
+    let ergebnisse = [];
+
+    // Die drei Wege, eine Runde zu starten
+    function starteUebung(nr) { themaNr = nr;   starteRunde(THEMEN[nr].uebungen, "uebung"); }
+    function starteTest(nr)   { themaNr = nr;   starteRunde(THEMEN[nr].test, "test"); }
+    function starteQuiz()     { themaNr = null; starteRunde(FRAGEN, "quiz"); }
+
+    function starteRunde(pool, neuerModus) {
+      modus = neuerModus;
+      fragenPool = pool;
+      // Übung: alle Übungsfragen gemischt. Test und Quiz: 10 Fragen, offene zuerst.
+      runde = (modus === "uebung") ? mische(pool) : stelleRundeZusammen(pool);
+      aktuelleFrage = 0;
+      punkte = 0;
+      ergebnisse = [];
+      zeigeFrage();
+    }
+
+    // Offene (noch nicht gelernte) Fragen kommen zuerst, der Rest wird aufgefüllt
+    function stelleRundeZusammen(pool) {
+      const offene = mische(pool.filter(f => istOffen(f.id)));
+      const uebrige = mische(pool.filter(f => !istOffen(f.id)));
       return offene.concat(uebrige).slice(0, FRAGEN_PRO_RUNDE);
     }
 
-    const runde = stelleRundeZusammen();
-    let aktuelleFrage = 0;
-    let punkte = 0;
-    let reihenfolge = [];    // in welcher Reihenfolge die Antworten gerade angezeigt werden
-    const ergebnisse = [];
-
-    // ===== Anzeige =====
+    // ===== Eine Frage anzeigen =====
     function zeigeFrage() {
-      const bereich = document.getElementById("quiz");
-
       if (aktuelleFrage >= runde.length) {
         zeigeErgebnis();
         return;
       }
 
       const f = runde[aktuelleFrage];
-      const markierung = istOffen(f.id) ? ` · <span class="badge">🔁 Wiederholung</span>` : "";
 
-      // Antworten mischen: z. B. [2, 0, 3, 1]
+      // Was steht oben in der Infozeile?
+      let bezeichnung;
+      if (modus === "quiz") bezeichnung = f.epoche;
+      else if (modus === "uebung") bezeichnung = "Übung";
+      else bezeichnung = "Abschlusstest";
+
+      // Die Markierung "Wiederholung" gibt es nur, wo der Lernstand zählt
+      const markierung = (modus !== "uebung" && istOffen(f.id)) ? ` · <span class="badge">🔁 Wiederholung</span>` : "";
+
       reihenfolge = mische(f.antworten.map((antwort, i) => i));
 
-      let html = `<p class="info">Frage ${aktuelleFrage + 1} von ${runde.length} · ${f.epoche}${markierung}</p>`;
+      let html = `<p class="info">Frage ${aktuelleFrage + 1} von ${runde.length} · ${bezeichnung}${markierung}</p>`;
       html += `<h2>${f.frage}</h2>`;
 
       reihenfolge.forEach((original) => {
         html += `<button class="antwort" onclick="pruefeAntwort(${original})">${f.antworten[original]}</button>`;
       });
 
-      bereich.innerHTML = html;
+      zeigeInhalt(html, true);
     }
 
     function pruefeAntwort(gewaehlt) {
@@ -232,9 +510,12 @@
       if (istRichtig) punkte++;
 
       ergebnisse.push({ frage: f, gewaehlt: gewaehlt, istRichtig: istRichtig });
-      aktualisiereLernstand(f.id, istRichtig);
 
-      // Buttons stehen in gemischter Reihenfolge, deshalb über "reihenfolge" zuordnen
+      // Übungen sollen entspannt sein: Sie verändern den Lernstand nicht
+      if (modus !== "uebung") {
+        aktualisiereLernstand(f.id, istRichtig);
+      }
+
       const buttons = document.querySelectorAll(".antwort");
       buttons.forEach((button, position) => {
         const original = reihenfolge[position];
@@ -243,9 +524,9 @@
         else if (original === gewaehlt) button.classList.add("falsch");
       });
 
-      const bereich = document.getElementById("quiz");
-      bereich.insertAdjacentHTML("beforeend",
-        `<p class="erklaerung">${istRichtig ? "Richtig! " : "Leider falsch. "}${f.erklaerung}</p>
+      const rueckmeldung = istRichtig ? zufaellig(LOB) : zufaellig(TROST);
+      document.getElementById("inhalt").insertAdjacentHTML("beforeend",
+        `<p class="erklaerung">${rueckmeldung} ${f.erklaerung}</p>
          <button class="weiter" onclick="naechsteFrage()">Weiter</button>`);
     }
 
@@ -254,32 +535,91 @@
       zeigeFrage();
     }
 
-    function zeigeErgebnis() {
-      const nochOffen = FRAGEN.filter(f => istOffen(f.id)).length;
+    // ===== Ergebnis am Ende einer Runde =====
 
-      let html = `<h2>Geschafft! ${punkte} von ${runde.length} richtig</h2>`;
-      html += `<p class="info">Noch zu üben: ${nochOffen} ${nochOffen === 1 ? "Frage" : "Fragen"}</p>`;
-
+    // Liste aller Fragen der Runde mit der richtigen Antwort
+    function ergebnisListe() {
+      let html = "";
       ergebnisse.forEach((e) => {
         html += `<p><strong>${e.istRichtig ? "✅" : "❌"} ${e.frage.frage}</strong><br>
                  Richtige Antwort: ${e.frage.antworten[e.frage.richtig]}</p>`;
       });
-
-      html += `<button class="weiter" onclick="location.reload()">Nochmal</button>`;
-      html += `<button class="klein" onclick="zuruecksetzen()">Lernstand zurücksetzen</button>`;
-      document.getElementById("quiz").innerHTML = html;
+      return html;
     }
 
-    function zuruecksetzen() {
-      if (confirm("Lernstand wirklich löschen?")) {
-        lernstand = {};
-        speichereLernstand();
-        location.reload();
+    function zeigeErgebnis() {
+      if (modus === "uebung") {
+        zeigeUebungsErgebnis();
+      } else {
+        zeigeTestErgebnis();
       }
     }
 
-    // Beim Laden der Seite mit der ersten Frage starten
-    zeigeFrage();
+    // Übung: keine Punkte, nur ein ermutigender Satz
+    function zeigeUebungsErgebnis() {
+      const anteil = punkte / runde.length;
+      let satz;
+      if (anteil === 1) satz = "Alles richtig – du bist bereit für den Abschlusstest! 🌟";
+      else if (anteil >= 0.6) satz = "Schon richtig gut! Noch eine Runde, dann sitzt es.";
+      else satz = "Guter Anfang! Lies dir die Erklärungen in Ruhe durch und probier es nochmal. Mit jeder Runde wird es leichter.";
+
+      let html = `<h2>Übung geschafft! ${punkte} von ${runde.length} richtig</h2>`;
+      html += `<div class="belohnung"><p>${satz}</p></div>`;
+      html += ergebnisListe();
+      html += `<button class="weiter" onclick="starteUebung(${themaNr})">Nochmal üben</button>`;
+      html += `<button class="weiter hell" onclick="starteTest(${themaNr})">Zum Abschlusstest</button>`;
+      html += `<button class="klein" onclick="zeigeStart()">Zum Start</button>`;
+      zeigeInhalt(html, true);
+    }
+
+    // Abschlusstest und Gemischtes Quiz: Punkte nach den bekannten Regeln
+    function zeigeTestErgebnis() {
+      const b = vergibPunkte();
+      const nochOffen = fragenPool.filter(f => istOffen(f.id)).length;
+
+      let html = `<h2>Geschafft! ${punkte} von ${runde.length} richtig</h2>`;
+
+      // Belohnungs-Box
+      html += `<div class="belohnung">`;
+      if (b.perfekt) {
+        html += `<p>🌟 Perfekte Runde! +${BONUS_PERFEKT} Bonuspunkte</p>`;
+      }
+      if (b.gutgeschrieben > 0) {
+        html += `<p><strong>+${b.gutgeschrieben} Punkte</strong></p>`;
+      } else if (b.verdient === 0) {
+        html += `<p>Diesmal keine Punkte – beim nächsten Mal klappt's!</p>`;
+      }
+      if (b.gutgeschrieben < b.verdient) {
+        html += `<p class="info">Das Tagesziel ist erreicht. Weiterüben hilft trotzdem beim Lernen!</p>`;
+      }
+      if (b.neueGutscheine > 0) {
+        html += `<p>🎉 Du hast einen neuen Gutschein verdient!</p>`;
+      }
+      html += `</div>`;
+
+      html += `<p class="info">Noch zu üben: ${nochOffen} ${nochOffen === 1 ? "Frage" : "Fragen"}</p>`;
+      html += ergebnisListe();
+
+      html += `<button class="weiter" onclick="starteRunde(fragenPool, modus)">Nochmal</button>`;
+      html += `<button class="weiter hell" onclick="zeigeStart()">Zum Start</button>`;
+      html += `<button class="klein" onclick="zuruecksetzen()">Lernstand zurücksetzen</button>`;
+      zeigeInhalt(html, true);
+
+      zeigePunkteleiste();
+    }
+
+    function zuruecksetzen() {
+      if (confirm("Lernstand wirklich löschen? (Die Punkte bleiben erhalten.)")) {
+        lernstand = {};
+        speichereLernstand();
+        zeigeStart();
+      }
+    }
+
+    // ===== Start =====
+    pruefeNeuenTag();
+    zeigePunkteleiste();
+    zeigeStart();
   </script>
 </body>
 </html>
