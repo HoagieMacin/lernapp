@@ -30,9 +30,9 @@
       background: var(--creme);
       color: var(--braun);
     }
-    /* Kopfbereich: Titel, Zierlinie und der kleine "Start"-Knopf links oben */
+    /* Kopfbereich: Titel, Zierlinie und der kleine "Zurück"-Knopf links oben */
     header { position: relative; }
-    .startknopf {
+    .zurueckknopf {
       position: absolute;
       left: 0;
       top: 6px;
@@ -141,8 +141,8 @@
       text-decoration: underline;
     }
 
-    /* ===== Startbildschirm ===== */
-    .station {
+    /* ===== Knöpfe für Themen, Fächer und Stationen ===== */
+    .station, .fach, .tagesthema {
       display: block;
       width: 100%;
       padding: 10px 12px;
@@ -156,14 +156,75 @@
       color: var(--braun);
       box-shadow: 0 1px 2px rgba(62, 43, 32, 0.08);
     }
-    /* Kleine Unterzeile im Stations-Knopf */
-    .station span {
+    /* Kleine Unterzeile im Knopf */
+    .station span, .fach span, .tagesthema span {
       display: block;
       font-size: 13px;
       font-style: italic;
       color: var(--braun-hell);
       margin-top: 2px;
     }
+    /* Status "Test bestanden" in Grün */
+    .station span.bestanden, .tagesthema span.bestanden { color: var(--richtig-rand); }
+
+    /* Fächer als Kacheln in zwei Spalten */
+    .faecher {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 8px 0 12px;
+    }
+    .fach { margin: 0; }
+
+    /* ===== Abschnitte auf dem Startbildschirm ===== */
+    /* Überschrift: Großbuchstaben, Buchstabenabstand, Weinrot. Darunter steht
+       das Gold-Ornament (Klasse "zier", wie unter dem App-Titel). */
+    .abschnitt {
+      text-align: center;
+      font-size: 15px;
+      font-weight: normal;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--weinrot);
+      margin: 30px 0 2px;
+    }
+    /* Der erste Abschnitt braucht oben nicht so viel Abstand */
+    #inhalt > .abschnitt:first-child { margin-top: 14px; }
+
+    /* Thema des Tages: hervorgehoben mit goldenem Rahmen */
+    .tagesthema {
+      border-color: var(--gold);
+      background: linear-gradient(180deg, var(--papier), #f8f0df);
+      padding: 12px 14px;
+    }
+    /* Oben das Fach: klein, in Kapitälchen */
+    .tagesthema .tages-fach {
+      font-style: normal;
+      font-variant: small-caps;
+      letter-spacing: 0.08em;
+      margin: 0 0 2px;
+    }
+    /* In der Mitte das Thema: groß und deutlich */
+    .tagesthema .tages-titel {
+      font-style: normal;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--braun);
+      margin: 0 0 3px;
+    }
+
+    /* Hinweis bei Ladefehlern – nur lokal am Laptop sichtbar */
+    .hinweis {
+      margin-top: 16px;
+      padding: 8px 10px;
+      border: 1px dashed var(--falsch-rand);
+      background: var(--falsch-bg);
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--braun);
+    }
+    .hinweis p { margin: 4px 0; }
 
     /* ===== Einführung ===== */
     .einfuehrung p { margin: 8px 0; line-height: 1.4; font-size: 16px; }
@@ -243,25 +304,82 @@
 </head>
 <body>
   <header>
-    <button id="startknopf" class="startknopf" onclick="zeigeStart()">‹ Start</button>
+    <button id="zurueckknopf" class="zurueckknopf" onclick="geheZurueck()">‹ Zurück</button>
     <h1>Lern-App</h1>
     <p class="zier">❦</p>
   </header>
   <div id="punkteleiste" class="punkteleiste"></div>
   <div id="inhalt"></div>
 
-  <!-- 1. Fragen für das Gemischte Quiz -->
-  <script src="fragen.js?v=3"></script>
+  <script>
+    // =====================================================================
+    // ===== HIER NEUE THEMEN EINTRAGEN =====
+    // Name der Datei im Ordner themen/ (ohne ".js").
+    // Die Reihenfolge hier ist die Reihenfolge in der App.
+    // In welches Fach ein Thema gehört, steht in der Themen-Datei selbst.
+    const THEMEN_DATEIEN = [
+      "lineare-funktionen",
+      "die-zelle",
+      "franzoesische-revolution",
+      "industrialisierung",
+      "luft-und-verbrennung",
+      "englisch-wiederholung"
+    ];
 
-  <!-- 2. Leere Themenliste anlegen. Jede Themen-Datei hängt sich hier an. -->
-  <script>const THEMEN = [];</script>
+    // Bei JEDER Änderung an fragen.js oder an einer Themen-Datei um 1 erhöhen.
+    // Dann lädt das iPhone die neuen Fassungen statt der alten aus dem Speicher.
+    const VERSION = 6;
+    // =====================================================================
 
-  <!-- 3. Die Themen. Für ein neues Thema einfach eine Zeile ergänzen. -->
-  <script src="themen/lineare-funktionen.js?v=2"></script>
-  <script src="themen/franzoesische-revolution.js?v=1"></script>
-  <script src="themen/englisch-wiederholung.js?v=1"></script>
 
-  <!-- 4. Die App-Logik -->
+    // ===== Laden der Dateien (hier muss normalerweise nichts geändert werden) =====
+    // Für jede Datei wird ein <script>-Tag in die Seite geschrieben. Der Browser
+    // lädt diese Dateien der Reihe nach und wartet jeweils, bis eine fertig ist.
+    // Die App-Logik weiter unten startet deshalb erst, wenn ALLE geladen sind.
+    //
+    // Fehlt eine Datei oder hat sie einen Fehler, kommt aus ihr kein Thema in die
+    // Liste THEMEN. Das merken wir uns, und nur dieses Thema fehlt dann.
+
+    const THEMEN = [];       // hier hängen sich die Themen-Dateien an
+    const LADEFEHLER = [];   // Hinweise für den Entwickler
+
+    let anzahlVorher = 0;
+
+    // Wird direkt VOR jeder Themen-Datei ausgeführt
+    function vorDerDatei() {
+      anzahlVorher = THEMEN.length;
+    }
+
+    // Wird direkt NACH jeder Themen-Datei ausgeführt
+    function nachDerDatei(datei) {
+      if (THEMEN.length === anzahlVorher) {
+        LADEFEHLER.push("themen/" + datei + ".js – Datei fehlt oder enthält einen Fehler (z. B. ein Komma oder eine Klammer zu wenig).");
+      }
+      // Jedem neuen Thema merken, aus welcher Datei es kommt
+      for (let i = anzahlVorher; i < THEMEN.length; i++) {
+        if (THEMEN[i] && typeof THEMEN[i] === "object") THEMEN[i].datei = datei;
+      }
+    }
+
+    // Wird direkt NACH fragen.js ausgeführt
+    function nachFragen() {
+      if (typeof FRAGEN === "undefined") {
+        LADEFEHLER.push("fragen.js – Datei fehlt oder enthält einen Fehler. Das Gemischte Quiz ist ausgeblendet.");
+      }
+    }
+
+    // Hinweis: "<\/script>" mit Schrägstrich davor, sonst denkt der Browser,
+    // dieser Skript-Block hier sei schon zu Ende.
+    document.write('<script src="fragen.js?v=' + VERSION + '"><\/script>');
+    document.write('<script>nachFragen()<\/script>');
+    THEMEN_DATEIEN.forEach((datei) => {
+      document.write('<script>vorDerDatei()<\/script>');
+      document.write('<script src="themen/' + datei + '.js?v=' + VERSION + '"><\/script>');
+      document.write('<script>nachDerDatei("' + datei + '")<\/script>');
+    });
+  </script>
+
+  <!-- Die App-Logik. Sie läuft erst, wenn alle Dateien oben geladen sind. -->
   <script>
     // ===== Einstellungen =====
     const FRAGEN_PRO_RUNDE = 10;       // wie viele Fragen pro Test/Quiz-Runde
@@ -269,6 +387,11 @@
     const PUNKTE_PRO_GUTSCHEIN = 10;   // so viele Punkte ergeben einen 50-Cent-Gutschein
     const BONUS_PERFEKT = 5;           // Bonuspunkte für eine Runde ohne Fehler
     const TAGES_MAXIMUM = 15;          // höchstens so viele Punkte pro Tag
+    const BESTEHEN_AB = 0.8;           // ab 80 % richtig (8 von 10) gilt ein Test als bestanden
+
+    // Reihenfolge der Fächer auf dem Startbildschirm.
+    // Fächer ohne Themen werden nicht angezeigt.
+    const FAECHER = ["Mathematik", "Biologie", "Geschichte", "Chemie", "Physik", "Englisch"];
 
     // ===== Freundliche Rückmeldungen (eine davon wird zufällig gewählt) =====
     const LOB = ["Richtig!", "Super!", "Genau so!", "Klasse!", "Stark!"];
@@ -286,6 +409,67 @@
         [kopie[i], kopie[j]] = [kopie[j], kopie[i]];
       }
       return kopie;
+    }
+
+    function heutigesDatum() {
+      const d = new Date();
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+
+    // ===== Themen prüfen =====
+    // Ein Thema mit fehlenden Teilen würde die App abstürzen lassen.
+    // Deshalb wird es aussortiert, und es gibt einen Hinweis.
+    function pruefeThema(thema) {
+      const probleme = [];
+      if (!thema || typeof thema !== "object") return ["ist kein gültiges Thema"];
+
+      ["id", "titel", "fach"].forEach((feld) => {
+        if (typeof thema[feld] !== "string") probleme.push('"' + feld + '" fehlt');
+      });
+      ["einfuehrung", "uebungen", "test"].forEach((feld) => {
+        if (!Array.isArray(thema[feld]) || thema[feld].length === 0) probleme.push('"' + feld + '" fehlt oder ist leer');
+      });
+      if (probleme.length > 0) return probleme;
+
+      thema.uebungen.concat(thema.test).forEach((f, i) => {
+        const inOrdnung = f && typeof f.id === "string" && typeof f.frage === "string"
+          && Array.isArray(f.antworten) && f.antworten.length === 4
+          && f.richtig >= 0 && f.richtig <= 3 && typeof f.erklaerung === "string";
+        if (!inOrdnung) probleme.push("Frage " + (f && f.id ? f.id : "Nr. " + (i + 1)) + " ist unvollständig");
+      });
+      return probleme;
+    }
+
+    function pruefeAlleThemen() {
+      // Fehlerhafte Themen aussortieren
+      const gueltige = THEMEN.filter((thema) => {
+        const probleme = pruefeThema(thema);
+        if (probleme.length > 0) {
+          LADEFEHLER.push("themen/" + thema.datei + ".js – " + probleme.join(", ") + ". Das Thema wird ausgelassen.");
+          return false;
+        }
+        return true;
+      });
+      THEMEN.length = 0;            // Liste leeren …
+      THEMEN.push(...gueltige);     // … und nur die guten Themen wieder hinein
+
+      // Doppelte Frage-IDs suchen (die würden den Lernstand durcheinanderbringen)
+      const gesehen = {};
+      const alleFragen = (typeof FRAGEN !== "undefined" ? FRAGEN : [])
+        .concat(...THEMEN.map((t) => t.uebungen.concat(t.test)));
+      alleFragen.forEach((f) => {
+        if (gesehen[f.id]) LADEFEHLER.push("Die Frage-ID " + f.id + " kommt doppelt vor.");
+        gesehen[f.id] = true;
+      });
+
+      // Hinweise zusätzlich in der Browser-Konsole ausgeben (F12 am Laptop)
+      LADEFEHLER.forEach((text) => console.warn("Lern-App: " + text));
+    }
+
+    // Läuft die App gerade lokal am Laptop (Doppelklick oder Test-Server)?
+    // Nur dann zeigen wir technische Hinweise an, nicht auf dem iPhone.
+    function laeuftLokal() {
+      return location.protocol === "file:" || location.hostname === "localhost" || location.hostname === "127.0.0.1";
     }
 
     // ===== Lernstand laden und speichern =====
@@ -330,11 +514,6 @@
 
     // ===== Punkte laden und speichern =====
     // Gespeichert werden: Punkte insgesamt, das heutige Datum und die Punkte von heute.
-    function heutigesDatum() {
-      const d = new Date();
-      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-    }
-
     function ladePunkte() {
       let p = null;
       try {
@@ -399,49 +578,229 @@
       return { verdient: verdient, gutgeschrieben: gutgeschrieben, perfekt: perfekt, neueGutscheine: neueGutscheine };
     }
 
+    // ===== Themen-Fortschritt laden und speichern (Schlüssel "themenfortschritt") =====
+    // Aufbau:
+    //   themen:        pro Thema-ID { zuletzt: "2026-11-24", bestes: 9, von: 10 }
+    //   themaDesTages: { tag: "2026-11-24", id: "lineare-funktionen" }
+    function ladeFortschritt() {
+      try {
+        const f = JSON.parse(localStorage.getItem("themenfortschritt"));
+        if (f && f.themen) return f;
+      } catch (fehler) {
+        // kaputte Daten: wir fangen einfach neu an
+      }
+      return { themen: {}, themaDesTages: null };
+    }
+
+    function speichereFortschritt() {
+      try {
+        localStorage.setItem("themenfortschritt", JSON.stringify(fortschritt));
+      } catch (fehler) {
+        // Falls Speichern nicht klappt, läuft die App trotzdem weiter
+      }
+    }
+
+    let fortschritt = ladeFortschritt();
+
+    // Merkt sich, dass ein Thema heute geübt wurde (Einführung, Übung oder Test)
+    function merkeBesuch(nr) {
+      const id = THEMEN[nr].id;
+      const eintrag = fortschritt.themen[id] || {};
+      eintrag.zuletzt = heutigesDatum();
+      fortschritt.themen[id] = eintrag;
+      speichereFortschritt();
+    }
+
+    // Speichert ein Testergebnis, aber nur, wenn es besser ist als das bisher beste.
+    // Gibt zurück, ob es ein neuer Bestwert ist.
+    function merkeTestergebnis(nr, richtig, von) {
+      const id = THEMEN[nr].id;
+      const eintrag = fortschritt.themen[id] || {};
+      const neuerBestwert = !eintrag.von || (richtig / von > eintrag.bestes / eintrag.von);
+      if (neuerBestwert) {
+        eintrag.bestes = richtig;
+        eintrag.von = von;
+      }
+      eintrag.zuletzt = heutigesDatum();
+      fortschritt.themen[id] = eintrag;
+      speichereFortschritt();
+      return neuerBestwert;
+    }
+
+    function istBestanden(thema) {
+      const eintrag = fortschritt.themen[thema.id];
+      return Boolean(eintrag && eintrag.von && eintrag.bestes / eintrag.von >= BESTEHEN_AB);
+    }
+
+    // Kurzer Status-Text, z. B. "angefangen · bestes Ergebnis 6 von 10"
+    function statusText(thema) {
+      const eintrag = fortschritt.themen[thema.id];
+      if (!eintrag) return "neu";
+      let text = istBestanden(thema) ? "✓ Test bestanden" : "angefangen";
+      if (eintrag.von) text += ` · bestes Ergebnis ${eintrag.bestes} von ${eintrag.von}`;
+      return text;
+    }
+
+    // Unterzeile mit Status als HTML (bestandene Themen in Grün)
+    function statusZeile(thema, davor) {
+      const klasse = istBestanden(thema) ? ' class="bestanden"' : "";
+      return `<span${klasse}>${davor}${statusText(thema)}</span>`;
+    }
+
+    // ===== Thema des Tages =====
+    // Bevorzugt ein neues Thema, sonst das am längsten nicht geübte.
+    // Die Wahl wird mit Datum gespeichert und ändert sich nur einmal am Tag.
+    function waehleThemaDesTages() {
+      if (THEMEN.length === 0) return -1;
+      const heute = heutigesDatum();
+
+      // Heute schon gewählt? Dann dabei bleiben.
+      const gespeichert = fortschritt.themaDesTages;
+      if (gespeichert && gespeichert.tag === heute) {
+        const nr = THEMEN.findIndex((t) => t.id === gespeichert.id);
+        if (nr >= 0) return nr;
+      }
+
+      // Neue Themen = Themen ohne Eintrag im Fortschritt
+      const neue = [];
+      THEMEN.forEach((t, nr) => { if (!fortschritt.themen[t.id]) neue.push(nr); });
+
+      let gewaehlt;
+      if (neue.length > 0) {
+        gewaehlt = zufaellig(neue);
+      } else {
+        // Das Thema mit dem ältesten Datum "zuletzt" suchen
+        gewaehlt = 0;
+        THEMEN.forEach((t, nr) => {
+          const datum = fortschritt.themen[t.id].zuletzt || "";
+          const bisher = fortschritt.themen[THEMEN[gewaehlt].id].zuletzt || "";
+          if (datum < bisher) gewaehlt = nr;
+        });
+      }
+
+      fortschritt.themaDesTages = { tag: heute, id: THEMEN[gewaehlt].id };
+      speichereFortschritt();
+      return gewaehlt;
+    }
+
     // ===== Bildschirm wechseln =====
-    // Schreibt neuen Inhalt in die Seite. Der "Start"-Knopf oben links
-    // wird überall gezeigt, außer auf dem Startbildschirm selbst.
-    function zeigeInhalt(html, mitStartknopf) {
+    // zurueckAktion: Funktion für den "‹ Zurück"-Knopf oben links (null = Knopf ausblenden)
+    let zurueckAktion = null;
+
+    function zeigeInhalt(html, zurueck) {
+      zurueckAktion = zurueck;
       document.getElementById("inhalt").innerHTML = html;
-      document.getElementById("startknopf").style.display = mitStartknopf ? "block" : "none";
+      document.getElementById("zurueckknopf").style.display = zurueck ? "block" : "none";
       window.scrollTo(0, 0);
     }
 
-    // ===== Startbildschirm: Liste aller Themen =====
-    function zeigeStart() {
-      let html = `<p class="info">Wähle ein Thema</p>`;
+    function geheZurueck() {
+      if (zurueckAktion) zurueckAktion();
+    }
 
-      // Für jedes Thema ein Knopf: Titel groß, Fach darunter klein
-      THEMEN.forEach((thema, nr) => {
-        html += `<button class="station" onclick="zeigeThema(${nr})">${thema.titel}<span>${thema.fach}</span></button>`;
+    // Welche Fächer haben schon Themen? (in der Reihenfolge von FAECHER,
+    // unbekannte Fächer aus Themen-Dateien kommen hinten dazu)
+    function faecherMitThemen() {
+      const liste = FAECHER.filter((fach) => THEMEN.some((t) => t.fach === fach));
+      THEMEN.forEach((t) => {
+        if (!liste.includes(t.fach)) liste.push(t.fach);
       });
+      return liste;
+    }
 
-      // Darunter das Gemischte Quiz mit den Fragen aus fragen.js
-      html += `<p class="zier">❦</p>
-        <button class="station" onclick="starteQuiz()">🎲 Gemischtes Quiz<span>Geschichte, Biologie, Physik und Mathe</span></button>`;
+    // Überschrift eines Abschnitts mit Gold-Ornament darunter
+    function abschnitt(titel) {
+      return `<h3 class="abschnitt">${titel}</h3><p class="zier">❦</p>`;
+    }
 
-      zeigeInhalt(html, false);
+    // ===== Startbildschirm: drei Abschnitte =====
+    // 1. Thema des Tages  2. Alle Fächer  3. Gemischtes Quiz
+    // Der Startbildschirm darf scrollen.
+    function zeigeStart() {
+      let html = "";
+
+      // 1. Thema des Tages: oben das Fach, darunter das Thema, darunter der Status
+      const tagesNr = waehleThemaDesTages();
+      if (tagesNr >= 0) {
+        const t = THEMEN[tagesNr];
+        html += abschnitt("Thema des Tages");
+        html += `<button class="tagesthema" onclick="zeigeThema(${tagesNr}, 'start')">
+            <span class="tages-fach">${t.fach}</span>
+            <span class="tages-titel">${t.titel}</span>
+            ${statusZeile(t, "")}
+          </button>`;
+      }
+
+      // 2. Alle Fächer als Kacheln
+      html += abschnitt("Alle Fächer");
+      html += `<div class="faecher">`;
+      faecherMitThemen().forEach((fach) => {
+        const themen = THEMEN.filter((t) => t.fach === fach);
+        const bestanden = themen.filter(istBestanden).length;
+        const wort = themen.length === 1 ? "Thema" : "Themen";
+        html += `<button class="fach" onclick="zeigeFach('${fach}')">${fach}<span>${themen.length} ${wort} · ${bestanden} bestanden</span></button>`;
+      });
+      html += `</div>`;
+
+      // 3. Gemischtes Quiz (nur, wenn fragen.js geladen werden konnte).
+      // Die Überschrift ist schon der Titel, auf der Karte steht nur eine Beschreibung.
+      if (typeof FRAGEN !== "undefined") {
+        html += abschnitt("Gemischtes Quiz");
+        html += `<button class="station" onclick="starteQuiz()">🎲 Zufällige Fragen aus allen Fächern</button>`;
+      }
+
+      // Hinweise bei Ladefehlern – nur am Laptop
+      if (LADEFEHLER.length > 0 && laeuftLokal()) {
+        html += `<div class="hinweis"><p><strong>⚠ Hinweis für den Entwickler</strong> (nur lokal sichtbar)</p>`;
+        LADEFEHLER.forEach((text) => { html += `<p>• ${text}</p>`; });
+        html += `</div>`;
+      }
+
+      zeigeInhalt(html, null);
+    }
+
+    // ===== Fachseite: alle Themen eines Fachs mit Status =====
+    function zeigeFach(fach) {
+      let html = `<p class="info">Fach</p><h2>${fach}</h2>`;
+      THEMEN.forEach((t, nr) => {
+        if (t.fach === fach) {
+          html += `<button class="station" onclick="zeigeThema(${nr}, 'fach')">${t.titel}${statusZeile(t, "")}</button>`;
+        }
+      });
+      zeigeInhalt(html, zeigeStart);
     }
 
     // ===== Themenseite: die drei Stationen eines Themas =====
-    function zeigeThema(nr) {
+    // Woher wurde das Thema geöffnet? "start" (Thema des Tages) oder "fach" (Themenliste).
+    // Danach richtet sich, wohin "‹ Zurück" auf der Themenseite führt.
+    let themaHerkunft = "fach";
+
+    // herkunft wird nur beim Öffnen vom Start oder aus der Themenliste mitgegeben.
+    // Kommt man aus Einführung, Übung oder Test zurück, bleibt die alte Herkunft erhalten.
+    function zeigeThema(nr, herkunft) {
+      if (herkunft) themaHerkunft = herkunft;
       const thema = THEMEN[nr];
       const anzahlTest = Math.min(FRAGEN_PRO_RUNDE, thema.test.length);
 
       const html = `<p class="info">${thema.fach}</p>
         <h2>${thema.titel}</h2>
+        <p class="info">${statusText(thema)}</p>
         <button class="station" onclick="zeigeEinfuehrung(${nr}, 0)">📖 Einführung<span>Worum geht es? Mit Beispielen</span></button>
         <button class="station" onclick="starteUebung(${nr})">✏️ Übungen<span>Ohne Punkte – so oft du magst</span></button>
         <button class="station" onclick="starteTest(${nr})">🏆 Abschlusstest<span>${anzahlTest} Fragen · zählt für deine Punkte</span></button>`;
 
-      zeigeInhalt(html, true);
+      if (themaHerkunft === "start") {
+        zeigeInhalt(html, zeigeStart);
+      } else {
+        zeigeInhalt(html, () => zeigeFach(thema.fach));
+      }
     }
 
     // ===== Einführung: eine Seite nach der anderen =====
     function zeigeEinfuehrung(nr, seite) {
       const thema = THEMEN[nr];
       const anzahlSeiten = thema.einfuehrung.length;
+      if (seite === 0) merkeBesuch(nr);
 
       let html = `<p class="info">Einführung · Seite ${seite + 1} von ${anzahlSeiten}</p>`;
       html += `<div class="einfuehrung">${thema.einfuehrung[seite]}</div>`;
@@ -458,7 +817,7 @@
       }
       html += `</div>`;
 
-      zeigeInhalt(html, true);
+      zeigeInhalt(html, () => zeigeThema(nr));
     }
 
     // ===== Zustand der laufenden Runde =====
@@ -472,8 +831,8 @@
     let ergebnisse = [];
 
     // Die drei Wege, eine Runde zu starten
-    function starteUebung(nr) { themaNr = nr;   starteRunde(THEMEN[nr].uebungen, "uebung"); }
-    function starteTest(nr)   { themaNr = nr;   starteRunde(THEMEN[nr].test, "test"); }
+    function starteUebung(nr) { themaNr = nr;   merkeBesuch(nr); starteRunde(THEMEN[nr].uebungen, "uebung"); }
+    function starteTest(nr)   { themaNr = nr;   merkeBesuch(nr); starteRunde(THEMEN[nr].test, "test"); }
     function starteQuiz()     { themaNr = null; starteRunde(FRAGEN, "quiz"); }
 
     function starteRunde(pool, neuerModus) {
@@ -492,6 +851,12 @@
       const offene = mische(pool.filter(f => istOffen(f.id)));
       const uebrige = mische(pool.filter(f => !istOffen(f.id)));
       return offene.concat(uebrige).slice(0, FRAGEN_PRO_RUNDE);
+    }
+
+    // Wohin führt "‹ Zurück" während einer Runde? Zum Thema, beim Quiz zum Start.
+    function zurueckAusRunde() {
+      if (themaNr !== null) zeigeThema(themaNr);
+      else zeigeStart();
     }
 
     // ===== Eine Frage anzeigen =====
@@ -521,7 +886,7 @@
         html += `<button class="antwort" onclick="pruefeAntwort(${original})">${f.antworten[original]}</button>`;
       });
 
-      zeigeInhalt(html, true);
+      zeigeInhalt(html, zurueckAusRunde);
     }
 
     function pruefeAntwort(gewaehlt) {
@@ -589,13 +954,21 @@
       html += `<button class="weiter" onclick="starteUebung(${themaNr})">Nochmal üben</button>`;
       html += `<button class="weiter hell" onclick="starteTest(${themaNr})">Zum Abschlusstest</button>`;
       html += `<button class="klein" onclick="zeigeThema(${themaNr})">Zum Thema</button>`;
-      zeigeInhalt(html, true);
+      zeigeInhalt(html, zurueckAusRunde);
     }
 
     // Abschlusstest und Gemischtes Quiz: Punkte nach den bekannten Regeln
     function zeigeTestErgebnis() {
       const b = vergibPunkte();
       const nochOffen = fragenPool.filter(f => istOffen(f.id)).length;
+
+      // Beim Abschlusstest: bestes Ergebnis des Themas merken
+      let neuerBestwert = false;
+      let warBestanden = false;
+      if (modus === "test") {
+        warBestanden = istBestanden(THEMEN[themaNr]);
+        neuerBestwert = merkeTestergebnis(themaNr, punkte, runde.length);
+      }
 
       let html = `<h2>Geschafft! ${punkte} von ${runde.length} richtig</h2>`;
 
@@ -615,6 +988,11 @@
       if (b.neueGutscheine > 0) {
         html += `<p>🎉 Du hast einen neuen Gutschein verdient!</p>`;
       }
+      if (modus === "test" && !warBestanden && istBestanden(THEMEN[themaNr])) {
+        html += `<p>✓ Test bestanden – toll gemacht!</p>`;
+      } else if (neuerBestwert && punkte > 0) {
+        html += `<p>🏅 Neuer Bestwert für dieses Thema!</p>`;
+      }
       html += `</div>`;
 
       html += `<p class="info">Noch zu üben: ${nochOffen} ${nochOffen === 1 ? "Frage" : "Fragen"}</p>`;
@@ -628,7 +1006,7 @@
         html += `<button class="weiter hell" onclick="zeigeStart()">Zum Start</button>`;
       }
       html += `<button class="klein" onclick="zuruecksetzen()">Lernstand zurücksetzen</button>`;
-      zeigeInhalt(html, true);
+      zeigeInhalt(html, zurueckAusRunde);
 
       zeigePunkteleiste();
     }
@@ -642,6 +1020,7 @@
     }
 
     // ===== Start =====
+    pruefeAlleThemen();
     pruefeNeuenTag();
     zeigePunkteleiste();
     zeigeStart();
